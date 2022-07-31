@@ -1,5 +1,6 @@
 package com.androiddevs.runningappyt.ui
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.androiddevs.runningappyt.R
 import com.androiddevs.runningappyt.database.RunDAO
+import com.androiddevs.runningappyt.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
@@ -26,7 +28,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        navigateToTrackingFragmentIfNeeded(intent)
         init()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        navigateToTrackingFragmentIfNeeded(intent)
     }
 
     private fun init() {
@@ -48,6 +56,13 @@ class MainActivity : AppCompatActivity() {
                 R.id.setupFragment -> bottomNavigationView.visibility = View.GONE
                 R.id.trackingFragment -> bottomNavigationView.visibility = View.GONE
             }
+        }
+    }
+
+    private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
+        setViews()
+        if (intent?.action == Constants.ACTION_SHOW_TRACKING_FRAGMENT) {
+            navController.navigate(R.id.action_global_trackingFragment)
         }
     }
 }
