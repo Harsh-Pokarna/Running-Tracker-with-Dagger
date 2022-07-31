@@ -6,8 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.androiddevs.runningappyt.R
 import com.androiddevs.runningappyt.base.BaseFragment
+import com.google.android.gms.maps.GoogleMap
+import kotlinx.android.synthetic.main.fragment_tracking.*
 
 class TrackingFragment : BaseFragment() {
+
+    private var map: GoogleMap? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -20,10 +24,52 @@ class TrackingFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mapView.onCreate(savedInstanceState)
         init()
     }
 
     private fun init() {
+        setViews()
+    }
 
+    // Handling the lifecycle of mapview or else use map fragment instead of map view
+    private fun setViews() {
+        mapView.getMapAsync {
+            map = it
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        mapView?.onResume()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapView?.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView?.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView?.onDestroy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView?.onPause()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView?.onLowMemory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView?.onSaveInstanceState(outState)
     }
 }
