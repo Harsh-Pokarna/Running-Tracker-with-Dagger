@@ -1,11 +1,14 @@
 package com.androiddevs.runningappyt.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.androiddevs.runningappyt.R
 import com.androiddevs.runningappyt.base.BaseFragment
+import com.androiddevs.runningappyt.services.TrackingService
+import com.androiddevs.runningappyt.utils.Constants
 import com.google.android.gms.maps.GoogleMap
 import kotlinx.android.synthetic.main.fragment_tracking.*
 
@@ -30,6 +33,7 @@ class TrackingFragment : BaseFragment() {
 
     private fun init() {
         setViews()
+        setListeners()
     }
 
     // Handling the lifecycle of mapview or else use map fragment instead of map view
@@ -38,6 +42,19 @@ class TrackingFragment : BaseFragment() {
             map = it
         }
     }
+
+    private fun setListeners() {
+        btnToggleRun.setOnClickListener {
+            sendCommandToService(Constants.ACTION_START_OR_RESUME_SERVICE)
+        }
+    }
+
+    private fun sendCommandToService(action: String) = Intent(requireContext(), TrackingService::class.java).also {
+        it.action = action
+        requireContext().startService(it)
+    }
+
+
     override fun onResume() {
         super.onResume()
         mapView?.onResume()
