@@ -5,16 +5,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import com.androiddevs.runningappyt.R
 import com.androiddevs.runningappyt.base.BaseFragment
+import com.androiddevs.runningappyt.services.Polyline
 import com.androiddevs.runningappyt.services.TrackingService
 import com.androiddevs.runningappyt.utils.Constants
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.android.synthetic.main.fragment_tracking.*
 
 class TrackingFragment : BaseFragment() {
 
     private var map: GoogleMap? = null
+
+    private var isTracking = false
+    private var pathPoints = mutableListOf<Polyline>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,24 +42,81 @@ class TrackingFragment : BaseFragment() {
     private fun init() {
         setViews()
         setListeners()
+        setObservers()
     }
 
     // Handling the lifecycle of mapview or else use map fragment instead of map view
     private fun setViews() {
         mapView.getMapAsync {
             map = it
+            addAllPolylines()
         }
     }
 
     private fun setListeners() {
         btnToggleRun.setOnClickListener {
+            toggleRun()
+        }
+    }
+
+    private fun setObservers() {
+        TrackingService.isTracking.observe(viewLifecycleOwner, Observer {
+            updateTracking(it)
+        })
+
+        TrackingService.pathPoints.observe(viewLifecycleOwner, Observer {
+            pathPoints = it
+            addLatestPolyline()
+            moveCameraToUser()
+        })
+    }
+
+    private fun toggleRun() {
+        if (isTracking) {
+            sendCommandToService(Constants.ACTION_PAUSE_SERVICE)
+        } else {
             sendCommandToService(Constants.ACTION_START_OR_RESUME_SERVICE)
+        }
+    }
+
+    private fun updateTracking(isTracking: Boolean) {
+        this.isTracking = isTracking
+        if (!isTracking) {
+            btnToggleRun.text = "Start"
+            btnFinishRun.visibility = View.VISIBLE
+        } else {
+            btnToggleRun.text = "Pause"
+            btnFinishRun.visibility = View.GONE
         }
     }
 
     private fun sendCommandToService(action: String) = Intent(requireContext(), TrackingService::class.java).also {
         it.action = action
         requireContext().startService(it)
+    }
+
+    private fun addLatestPolyline() {
+        if (pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
+            val lastSecondCoordinate = pathPoints.last()[pathPoints.last().size -2]
+            val lastCoordinate = pathPoints.last().last()
+            val polylineOptions = PolylineOptions().add(lastSecondCoordinate, lastCoordinate).color(Constants.POLYLINE_COLOR).width(Constants.POLYLINE_WIDTH);
+            map?.addPolyline(polylineOptions)
+        }
+    }
+
+    private fun moveCameraToUser() {
+        if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
+            map?.animateCamera(CameraUpdateFactory.newLatLngZoom(pathPoints.last().last(), Constants.MAP_ZOOM))
+        }
+    }
+
+    private fun addAllPolylines() {
+        if (pathPoints.isNotEmpty()) {
+            for (polyline in pathPoints) {
+                val polylineOptions = PolylineOptions().color(Constants.POLYLINE_COLOR).width(Constants.POLYLINE_WIDTH).addAll(polyline)
+                map?.addPolyline(polylineOptions)
+            }
+        }
     }
 
 

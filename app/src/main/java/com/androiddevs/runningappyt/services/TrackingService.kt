@@ -16,7 +16,6 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.androiddevs.runningappyt.R
-import com.androiddevs.runningappyt.permissions.TrackingUtility
 import com.androiddevs.runningappyt.ui.MainActivity
 import com.androiddevs.runningappyt.utils.Constants
 import com.google.android.gms.location.*
@@ -38,7 +37,7 @@ class TrackingService : LifecycleService() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
 
-            if(isTracking.value!!) {
+            if (isTracking.value!!) {
                 locationResult.locations.let { locations ->
                     for (location in locations) {
                         addPathPoint(location)
@@ -84,7 +83,11 @@ class TrackingService : LifecycleService() {
                 fastestInterval = Constants.FASTEST_LOCATION_INTERVAL
             }
 
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+            fusedLocationProviderClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
         } else {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         }
@@ -111,10 +114,12 @@ class TrackingService : LifecycleService() {
                         isFirstRun = false
                     } else {
                         Timber.d("Resuming service..")
+                        startForegroundService()
                     }
                 }
                 Constants.ACTION_PAUSE_SERVICE -> {
                     Timber.d("Paused service")
+                    pauseService()
                 }
                 Constants.ACTION_STOP_SERVICE -> {
                     Timber.d("Stopped service")
@@ -122,6 +127,10 @@ class TrackingService : LifecycleService() {
             }
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun pauseService() {
+        isTracking.postValue(false)
     }
 
     private fun addEmptyPolyline() = pathPoints.value?.apply {
