@@ -13,5 +13,8 @@ object Constants {
     const val NOTIFICATION_CHANNEL_ID = "tracking_channel"
     const val NOTIFICATION_CHANNEL_NAME = "Tracking"
     const val NOTIFICATION_ID = 1 // Your have to set this to atleast 1 or else there will be a bug
+
+    const val LOCATION_REQUEST_INTERVAL = 5000L
+    const val FASTEST_LOCATION_INTERVAL = 2000L
 }
 
