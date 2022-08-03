@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.os.Build
 import pub.devrel.easypermissions.EasyPermissions
+import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 object TrackingUtility {
 
@@ -23,4 +25,17 @@ object TrackingUtility {
             )
 
         }
+
+    fun getFormattedStopwatchTime(ms: Long): String {
+        var milliSeconds = ms
+        val hours = TimeUnit.MILLISECONDS.toHours(milliSeconds)
+        milliSeconds -= TimeUnit.HOURS.toMillis(hours)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(milliSeconds)
+        milliSeconds -= TimeUnit.MINUTES.toMillis(minutes)
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(milliSeconds)
+
+        return "${if (hours < 10) "0" else ""}$hours:" +
+                "${if (minutes < 10) "0" else ""}$minutes:" +
+                "${if (seconds < 10) "0" else ""}$seconds"
+    }
 }

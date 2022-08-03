@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import com.androiddevs.runningappyt.R
 import com.androiddevs.runningappyt.base.BaseFragment
+import com.androiddevs.runningappyt.permissions.TrackingUtility
 import com.androiddevs.runningappyt.services.Polyline
 import com.androiddevs.runningappyt.services.TrackingService
 import com.androiddevs.runningappyt.utils.Constants
@@ -23,6 +24,7 @@ class TrackingFragment : BaseFragment() {
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
 
+    private var timeRunInSecs = 0L
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,7 +47,6 @@ class TrackingFragment : BaseFragment() {
         setObservers()
     }
 
-    // Handling the lifecycle of mapview or else use map fragment instead of map view
     private fun setViews() {
         mapView.getMapAsync {
             map = it
@@ -68,6 +69,12 @@ class TrackingFragment : BaseFragment() {
             pathPoints = it
             addLatestPolyline()
             moveCameraToUser()
+        })
+
+        TrackingService.timeRunInSecs.observe(viewLifecycleOwner, Observer {
+            timeRunInSecs = it
+            val time: String = TrackingUtility.getFormattedStopwatchTime(timeRunInSecs * 1000)
+            tvTimer.text = time
         })
     }
 
