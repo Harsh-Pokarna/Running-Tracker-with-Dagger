@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class MainRepository @Inject constructor(
     private val runDAO: RunDAO
-){
+) {
 
     suspend fun insertRun(run: Run) = runDAO.insertRun(run)
 
