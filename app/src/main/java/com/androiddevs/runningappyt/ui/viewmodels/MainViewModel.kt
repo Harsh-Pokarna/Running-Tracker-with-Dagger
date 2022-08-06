@@ -14,6 +14,10 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     val runSortedByDate = mainRepository.getAllRunsSortedByDate()
+    val runSortedByDistance = mainRepository.getAllRunsSortedByDistance()
+    val runSortedBySpeed = mainRepository.getAllRunsSortedBySpeed()
+    val runSortedByCaloriesBurned = mainRepository.getAllRunsSortedByCaloriesBurned()
+    val runSortedByTime = mainRepository.getAllRunsSortedByTime()
 
     fun insertRun(run: Run) = viewModelScope.launch {
         mainRepository.insertRun(run)
